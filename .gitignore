@@ -1,0 +1,7 @@
+# PyCharm files
+.idea/*
+*.iml
+
+# Project Files
+*.log
+__py*/
