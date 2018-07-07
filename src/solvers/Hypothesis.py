@@ -5,7 +5,7 @@ from . import Normal
 
 ######################
 #
-# This is a Normal solver :
+# This is an Hypothesis solver :
 # It tries using existing algorithms to solve sudoku, and if blocked, it makes one hypothesis
 #
 ######################
@@ -35,13 +35,16 @@ def solve(matrix):
   return matrix
 
 
-# TODO : Make more than one hypothesis
+# TODO : Make more hypothesis, one after the other
 def solve_with_hypothesis(matrix, size):
   logger = logging.getLogger("sudoku_solver")
 
   # Find a case where there is different possibilities (maybe try to get the one with the most different possibilities)
   y = -1
   x = -1
+
+  # TODO : Try to get the point with the most possibilities
+  # TODO : Create as many matrixes as possible, checking all the possibilities for each point unfilled ?
 
   for i in range(0, size):
     for j in range(0, size):
