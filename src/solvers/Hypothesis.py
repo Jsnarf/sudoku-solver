@@ -1,11 +1,12 @@
 import logging
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from src import Utils
 from . import Normal
 
 ######################
 #
 # This is a Normal solver :
-# It tries using existing algorithms to solve sudoku, and if blocked, it make one hypothesis
+# It tries using existing algorithms to solve sudoku, and if blocked, it makes one hypothesis
 #
 ######################
 
@@ -14,34 +15,37 @@ def solve(matrix):
   logger = logging.getLogger("sudoku_solver")
 
   size = len(matrix[0])
-  score = size*size
 
   while not Utils.check_matrix_is_finished(matrix, size):
-    Utils.calculate_matrix_score(matrix, size)
+    score = Utils.calculate_matrix_score(matrix, size)
     matrix = Normal.run_1_time(matrix, size)
-    Utils.print_matrix(matrix, size)
+    # Utils.print_matrix(matrix, size)
     current_score = Utils.calculate_matrix_score(matrix, size)
     if score == current_score:
-      # TODO : We are blcoked but could we try to make some assumptions and parallelize treatment ?
-      parallelize_run(matrix, size)
-      logger.error("Sudoku is blocked with %i empty cases", score)
+      solution = solve_with_hypothesis(matrix, size)
+      if solution is None:
+        logger.warning("Sudoku is blocked with %i empty cases", score)
+      else:
+        logger.info("A solution has been found with hypothesis")
+        matrix = solution
       break
-    score = current_score
 
   Utils.print_matrix(matrix, size)
 
   return matrix
 
-def parallelize_run(matrix, size):
-  # TODO : We will try to make an hypothesis on a case and use parallelization to compute all different possibilities
-  # TODO : Make more than one hypothesis
+
+# TODO : Make more than one hypothesis
+def solve_with_hypothesis(matrix, size):
   logger = logging.getLogger("sudoku_solver")
 
   # Find a case where there is different possibilities (maybe try to get the one with the most different possibilities)
-  x, y = -1
+  y = -1
+  x = -1
+
   for i in range(0, size):
     for j in range(0, size):
-      logger.info("point %i %i is : %i ", i, j, matrix[i][j])
+      logger.debug("point %i %i is : %i ", i, j, matrix[i][j])
 
       actual_value = matrix[i][j]
 
@@ -56,8 +60,49 @@ def parallelize_run(matrix, size):
   # Get all different possibilities for this case
   possibilities = Normal.get_list_of_possibilities_for_one_point(matrix, x, y, size)
 
-  # Create an array of different matrix
+  # Create a set of different matrix
+  set_of_matrix = []
+
+  for possibility in possibilities:
+    matrix_with_hypothesis = matrix[:]
+    matrix_with_hypothesis[x][y] = possibility
+    set_of_matrix.append(matrix_with_hypothesis)
+
+    logger.debug("Possiblity is : %i at ( %i ; %i )", possibility, x, y)
+
+  # TODO : Secure Threads by closing them
+
+  # Parallelize list of matrix treatment
+  pool = ThreadPoolExecutor(max_workers=10)
+  list_of_futures = []
+
+  for matrix_with_hypothesis in set_of_matrix:
+    list_of_futures.append(pool.submit(solve_one_matrix, (matrix[:])))
+
+  # Check if there is a solution
+  solution = None
+  for future in as_completed(list_of_futures):
+    result = future.result()
+    if result[1] == 0:
+      solution = result[0]
+      break
+
+  return solution
 
 
-  # create an array of matrix and parallelize their treatment
-  # Try to get the result of the one that is not blocked (if there is one ;) )
+def solve_one_matrix(matrix):
+  logger = logging.getLogger("sudoku_solver")
+  size = len(matrix[0])
+  score = size*size
+
+  while not Utils.check_matrix_is_finished(matrix, size):
+    matrix = Normal.run_1_time(matrix, size)
+
+    current_score = Utils.calculate_matrix_score(matrix, size)
+    if score == current_score:
+      logger.warning("Using hypothesis, Sudoku is still blocked with %i empty cases", score)
+      break
+
+    score = current_score
+
+  return matrix, score

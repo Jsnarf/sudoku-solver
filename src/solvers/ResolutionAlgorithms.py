@@ -32,27 +32,27 @@ def give_solution_if_forced_by_other_columns_of_other_squares(matrix, i, j, size
   # Line indices to check if column is full
   indices = Utils.indices_of_others(i)
   if Utils.are_full_column(matrix, i, j, indices):
-    logger.info("Column %i is full on lin %i from square %i", j, i, i // 3)
+    logger.debug("Column %i is full on lin %i from square %i", j, i, i // 3)
     list_of_other_numbers = []
 
     # Check other square' columns number that are on both columns
     for z in Utils.indices_of_others(j):
       column_to_check = (j // 3) * 3 + z
-      logger.info("Column to check is %i", column_to_check)
+      logger.debug("Column to check is %i", column_to_check)
       # We are in other columns of the square & we add for every line all the numbers listed if they are not equal to 0
       for x in range(0, size):
         if matrix[x][column_to_check] != 0:
-          logger.info("value of %i : %i is %i", x, column_to_check, matrix[x][column_to_check])
+          logger.debug("value of %i : %i is %i", x, column_to_check, matrix[x][column_to_check])
           list_of_other_numbers.append(matrix[x][column_to_check])
 
     # We have to get every number present on both other columns
     list_of_number_present_on_both = Utils.get_duplicates_of_a_list(list_of_other_numbers)
     for n1 in list_of_number_present_on_both:
-      logger.info("This number is present on both columns : %i ", n1)
+      logger.debug("This number is present on both columns : %i ", n1)
 
     list_of_new_possibilities = [x for x in list_of_number_present_on_both if x in list_of_possibilities]
     for n1 in list_of_new_possibilities:
-      logger.info("This number is maybe a new possibility : %i ", n1)
+      logger.debug("This number is maybe a new possibility : %i ", n1)
 
     if len(list_of_new_possibilities) == 1:
       list_of_possibilities = list_of_new_possibilities
@@ -70,27 +70,27 @@ def give_solution_if_forced_by_other_lines_of_other_squares(matrix, i, j, size, 
   # Column indices to check to know if line is full
   indices = Utils.indices_of_others(j)
   if Utils.are_full_line(matrix, i, j, indices):
-    logger.info("Line %i is full on column %i from square %i", i, j, j // 3)
+    logger.debug("Line %i is full on column %i from square %i", i, j, j // 3)
     list_of_other_numbers = []
 
     # Check other square' lines number that are on both lines
     for z in Utils.indices_of_others(i):
       line_to_check = (i // 3) * 3 + z
-      logger.info("Line to check is %i", line_to_check)
+      logger.debug("Line to check is %i", line_to_check)
       # We are in other lines of the square & we add for every line all the numbers listed if they are not equal to 0
       for x in range(0, size):
         if matrix[line_to_check][x] != 0:
-          logger.info("value of %i : %i is %i", line_to_check, x, matrix[line_to_check][x])
+          logger.debug("value of %i : %i is %i", line_to_check, x, matrix[line_to_check][x])
           list_of_other_numbers.append(matrix[line_to_check][x])
 
     # We have to get every number present on both other lines
     list_of_number_present_on_both = Utils.get_duplicates_of_a_list(list_of_other_numbers)
     for n1 in list_of_number_present_on_both:
-      logger.info("This number is present on both lines : %i ", n1)
+      logger.debug("This number is present on both lines : %i ", n1)
 
     list_of_new_possibilities = [x for x in list_of_number_present_on_both if x in list_of_possibilities]
     for n1 in list_of_new_possibilities:
-      logger.info("This number is maybe a new possibility : %i ", n1)
+      logger.debug("This number is maybe a new possibility : %i ", n1)
 
     if len(list_of_new_possibilities) == 1:
       list_of_possibilities = list_of_new_possibilities

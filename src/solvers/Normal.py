@@ -21,7 +21,7 @@ def solve(matrix):
   while not Utils.check_matrix_is_finished(matrix, size):
     Utils.calculate_matrix_score(matrix, size)
     matrix = run_1_time(matrix, size)
-    Utils.print_matrix(matrix, size)
+    # Utils.print_matrix(matrix, size)
     current_score = Utils.calculate_matrix_score(matrix, size)
     if score == current_score:
       logger.error("Sudoku is blocked with %i empty cases", score)
@@ -38,7 +38,7 @@ def run_1_time(matrix, size):
 
   for i in range(0, size):
     for j in range(0, size):
-      logger.info("point %i %i is : %i ", i, j, matrix[i][j])
+      logger.debug("point %i %i is : %i ", i, j, matrix[i][j])
 
       actual_value = matrix[i][j]
 
@@ -49,7 +49,7 @@ def run_1_time(matrix, size):
 
         # Print Possibilities
         for v in list_of_possibilities:
-          logger.info("v = %i ", v)
+          logger.debug("v = %i ", v)
 
         if Utils.check_list(list_of_possibilities):
           matrix[i][j] = list_of_possibilities[0]
