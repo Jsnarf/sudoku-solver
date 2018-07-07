@@ -1,7 +1,7 @@
 import logging
 import configparser
+from src.solvers import Normal
 import Matrix
-import Solver_force
 
 
 def main():
@@ -9,7 +9,7 @@ def main():
 
   matrix = Matrix.create_matrix_9x9_normal()
 
-  Solver_force.solve(matrix)
+  Normal.solve(matrix)
 
   # TODO : Add a checker on the solution
 

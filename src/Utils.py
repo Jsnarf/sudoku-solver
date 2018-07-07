@@ -59,6 +59,7 @@ def calculate_matrix_score(matrix, size):
 
   return score
 
+
 def get_duplicates_of_a_list(list_to_get_duplicate):
   list_of_duplicates = []
   number_seen = []
@@ -67,3 +68,28 @@ def get_duplicates_of_a_list(list_to_get_duplicate):
       list_of_duplicates.append(n)
     number_seen.append(n)
   return list(set(list_of_duplicates))
+
+
+def indices_of_others(indice):
+  if (indice % 3) == 0:
+    return [1, 2]
+  elif (indice % 3) == 1:
+    return [0, 2]
+  else:
+    return [0, 1]
+
+
+def are_full_line(matrix, indice_line, indice_column, indices):
+  are_full = True
+  for x in indices:
+    if matrix[indice_line][(indice_column // 3)*3 + x] == 0:
+      are_full = False
+  return  are_full
+
+
+def are_full_column(matrix, indice_line, indice_column, indices):
+  are_full = True
+  for x in indices:
+    if matrix[(indice_line // 3)*3 + x][indice_column] == 0:
+      are_full = False
+  return  are_full
