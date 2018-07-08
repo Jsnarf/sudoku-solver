@@ -1,5 +1,5 @@
 import logging
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor, as_completed, ProcessPoolExecutor
 import copy
 from src import Utils
 from . import Normal
@@ -38,8 +38,7 @@ def solve(matrix):
 
 
 # TODO : Make more hypothesis, one after the other
-# TODO : Make something much more efficient ...
-# TODO: Either by using a PoolProcessExecutor or optimizing number of treatment (not create too much matrix, get one point and not all etc..)
+# TODO: Optimizing number of treatment (not create too much matrix, get one point and not all etc..) ?
 def solve_with_hypothesis(matrix, size):
   logger = logging.getLogger("sudoku_solver")
 
@@ -69,20 +68,17 @@ def solve_with_hypothesis(matrix, size):
       logger.debug("Possiblity is : %i at ( %i ; %i )", possibility, point.x, point.y)
 
   # Parallelize list of matrix treatment
-  pool = ThreadPoolExecutor(max_workers=50)
-  list_of_futures = []
+  with ProcessPoolExecutor() as executor:
 
-  for matrix_with_hypothesis_2 in list_of_matrix:
-    list_of_futures.append(pool.submit(solve_one_matrix, matrix_with_hypothesis_2))
+    list_of_futures = {executor.submit(solve_one_matrix, matrix_with_hypothesis): matrix_with_hypothesis for matrix_with_hypothesis in list_of_matrix}
 
-  # Check if there is a solution from one of all the try
-  solution = None
-  for future in as_completed(list_of_futures):
-    result = future.result()
-    if result[1] == 0:
-      solution = result[0]
-      pool.shutdown()
-      break
+    # Check if there is a solution from one of all the try
+    solution = None
+    for future in as_completed(list_of_futures):
+      result = future.result()
+      if result[1] == 0:
+        solution = result[0]
+        break
 
   return solution
 
