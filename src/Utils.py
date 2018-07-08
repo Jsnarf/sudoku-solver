@@ -1,4 +1,5 @@
 import logging
+import time
 
 
 def coordinate_list_for_square(coordinate, size):
@@ -52,12 +53,13 @@ def calculate_matrix_score(matrix, size):
       if matrix[i][j] == 0:
         score += 1
 
-  logger.info("*******************************")
-  logger.info("There is %i empty cases", score)
-  logger.info("There is %i full cases", size*size - score)
-  logger.info("*******************************")
+  logger.debug("*******************************")
+  logger.debug("There is %i empty cases", score)
+  logger.debug("There is %i full cases", size*size - score)
+  logger.debug("*******************************")
 
   return score
+
 
 def get_duplicates_of_a_list(list_to_get_duplicate):
   list_of_duplicates = []
@@ -67,3 +69,31 @@ def get_duplicates_of_a_list(list_to_get_duplicate):
       list_of_duplicates.append(n)
     number_seen.append(n)
   return list(set(list_of_duplicates))
+
+
+def indices_of_others(indice):
+  if (indice % 3) == 0:
+    return [1, 2]
+  elif (indice % 3) == 1:
+    return [0, 2]
+  else:
+    return [0, 1]
+
+
+def are_full_line(matrix, indice_line, indice_column, indices):
+  are_full = True
+  for x in indices:
+    if matrix[indice_line][(indice_column // 3)*3 + x] == 0:
+      are_full = False
+  return  are_full
+
+
+def are_full_column(matrix, indice_line, indice_column, indices):
+  are_full = True
+  for x in indices:
+    if matrix[(indice_line // 3)*3 + x][indice_column] == 0:
+      are_full = False
+  return  are_full
+
+def current_milli_time():
+  return int(round(time.time() * 1000))
