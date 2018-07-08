@@ -8,7 +8,6 @@ def create_matrix_4x4():
     [0, 2, 4, 0]
   ]
 
-# TODO : Try to solve it with some better algorithm conditions to add :)
 def create_matrix_9x9_diabolik():
   return [
     [0, 0, 0, 0, 0, 0, 0, 0, 0],

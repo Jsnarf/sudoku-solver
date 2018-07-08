@@ -1,7 +1,9 @@
 import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import copy
 from src import Utils
 from . import Normal
+from ..object import PointPossibility
 
 ######################
 #
@@ -36,58 +38,50 @@ def solve(matrix):
 
 
 # TODO : Make more hypothesis, one after the other
+# TODO : Make something much more efficient ...
+# TODO: Either by using a PoolProcessExecutor or optimizing number of treatment (not create too much matrix, get one point and not all etc..)
 def solve_with_hypothesis(matrix, size):
   logger = logging.getLogger("sudoku_solver")
 
-  # Find a case where there is different possibilities (maybe try to get the one with the most different possibilities)
-  y = -1
-  x = -1
+  # Get a list of each point unfilled with its possibilities
+  points_with_possibilities = []
 
-  # TODO : Try to get the point with the most possibilities
-  # TODO : Create as many matrixes as possible, checking all the possibilities for each point unfilled ?
 
   for i in range(0, size):
     for j in range(0, size):
       logger.debug("point %i %i is : %i ", i, j, matrix[i][j])
 
-      actual_value = matrix[i][j]
+      if matrix[i][j] == 0:
+        points_with_possibilities.append(
+          PointPossibility.PointPossibility(i, j,
+                                            Normal.get_list_of_possibilities_for_one_point(matrix, i, j, size))
+        )
 
-      if actual_value == 0:
-        x = i
-        y = j
-        break
+  # Create all different possible matrix
+  list_of_matrix = []
 
-    if x != -1:
-      break
+  for point in points_with_possibilities:
+    for possibility in point.list_of_possibilities:
+      matrix_with_hypothesis = copy.deepcopy(matrix)
+      matrix_with_hypothesis[point.x][point.y] = possibility
+      list_of_matrix.append(matrix_with_hypothesis)
 
-  # Get all different possibilities for this case
-  possibilities = Normal.get_list_of_possibilities_for_one_point(matrix, x, y, size)
-
-  # Create a set of different matrix
-  set_of_matrix = []
-
-  for possibility in possibilities:
-    matrix_with_hypothesis = matrix[:]
-    matrix_with_hypothesis[x][y] = possibility
-    set_of_matrix.append(matrix_with_hypothesis)
-
-    logger.debug("Possiblity is : %i at ( %i ; %i )", possibility, x, y)
-
-  # TODO : Secure Threads by closing them
+      logger.debug("Possiblity is : %i at ( %i ; %i )", possibility, point.x, point.y)
 
   # Parallelize list of matrix treatment
-  pool = ThreadPoolExecutor(max_workers=10)
+  pool = ThreadPoolExecutor(max_workers=50)
   list_of_futures = []
 
-  for matrix_with_hypothesis in set_of_matrix:
-    list_of_futures.append(pool.submit(solve_one_matrix, (matrix[:])))
+  for matrix_with_hypothesis_2 in list_of_matrix:
+    list_of_futures.append(pool.submit(solve_one_matrix, matrix_with_hypothesis_2))
 
-  # Check if there is a solution
+  # Check if there is a solution from one of all the try
   solution = None
   for future in as_completed(list_of_futures):
     result = future.result()
     if result[1] == 0:
       solution = result[0]
+      pool.shutdown()
       break
 
   return solution
