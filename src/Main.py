@@ -3,6 +3,7 @@ import configparser
 import time
 from src.solvers import Normal
 from src.solvers import Hypothesis
+from src.solvers import BruteForce
 import Utils
 import Matrix
 
@@ -15,8 +16,9 @@ def main():
   matrix = Matrix.create_matrix_9x9_difficil()
   #matrix = Matrix.create_matrix_9x9_easy()
 
-  #Normal.solve(matrix)
-  matrix = Hypothesis.solve(matrix)
+  #matrix = Normal.solve(matrix)
+  #matrix = Hypothesis.solve(matrix)
+  matrix = BruteForce.solve(matrix)
 
   logger.info("Matrix is well filled in ? %r", Utils.check_a_matrix_is_good(matrix))
 
