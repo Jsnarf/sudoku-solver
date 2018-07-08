@@ -14,7 +14,6 @@ Or directly with an IDE like PyCharm.
 # TODOs :
 
 - Add others algorithms to check if a number could be picked 
-- Add a checker on sudoku output (to check answer is correct)
 - Add a simple interface to put your sudoku 
 - Add full variabilization on sudoku size
 

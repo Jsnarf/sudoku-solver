@@ -11,14 +11,14 @@ def main():
   start_time = Utils.current_milli_time()
 
   #matrix = Matrix.create_matrix_9x9_normal()
-  matrix = Matrix.create_matrix_9x9_diabolik()
-  #matrix = Matrix.create_matrix_9x9_difficil()
+  #matrix = Matrix.create_matrix_9x9_diabolik()
+  matrix = Matrix.create_matrix_9x9_difficil()
   #matrix = Matrix.create_matrix_9x9_easy()
 
   #Normal.solve(matrix)
   matrix = Hypothesis.solve(matrix)
 
-  # TODO : Add a checker on the solution
+  logger.info("Matrix is well filled in ? %r", Utils.check_a_matrix_is_good(matrix))
 
   end_time = Utils.current_milli_time()
   logger.info("Time spent to process : %i milliseconds", end_time-start_time)
