@@ -13,6 +13,7 @@ def main():
   #matrix = Matrix.create_matrix_9x9_normal()
   matrix = Matrix.create_matrix_9x9_diabolik()
   #matrix = Matrix.create_matrix_9x9_difficil()
+  #matrix = Matrix.create_matrix_9x9_easy()
 
   #Normal.solve(matrix)
   matrix = Hypothesis.solve(matrix)

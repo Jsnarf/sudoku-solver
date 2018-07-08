@@ -38,23 +38,40 @@ def solve(matrix):
 
 
 # TODO : Make more hypothesis, one after the other
-# TODO: Optimizing number of treatment (not create too much matrix, get one point and not all etc..) ?
 def solve_with_hypothesis(matrix, size):
+  logger = logging.getLogger("sudoku_solver")
+
+  list_of_lines = range(0, size)
+
+  with ProcessPoolExecutor() as executor:
+
+     list_of_futures = {executor.submit(solve_with_hypothesis_one_line_fixed, matrix, size, line_number):
+                           line_number for line_number in list_of_lines}
+
+     solution = None
+     for future in as_completed(list_of_futures):
+       result = future.result()
+       if result is not None:
+         solution = result
+         break
+
+     return solution
+
+
+def solve_with_hypothesis_one_line_fixed(matrix, size, i):
   logger = logging.getLogger("sudoku_solver")
 
   # Get a list of each point unfilled with its possibilities
   points_with_possibilities = []
 
+  for j in range(0, size):
+    logger.debug("point %i %i is : %i ", i, j, matrix[i][j])
 
-  for i in range(0, size):
-    for j in range(0, size):
-      logger.debug("point %i %i is : %i ", i, j, matrix[i][j])
-
-      if matrix[i][j] == 0:
-        points_with_possibilities.append(
-          PointPossibility.PointPossibility(i, j,
-                                            Normal.get_list_of_possibilities_for_one_point(matrix, i, j, size))
-        )
+    if matrix[i][j] == 0:
+      points_with_possibilities.append(
+        PointPossibility.PointPossibility(i, j,
+                                          Normal.get_list_of_possibilities_for_one_point(matrix, i, j, size))
+      )
 
   # Create all different possible matrix
   list_of_matrix = []
@@ -67,18 +84,15 @@ def solve_with_hypothesis(matrix, size):
 
       logger.debug("Possiblity is : %i at ( %i ; %i )", possibility, point.x, point.y)
 
-  # Parallelize list of matrix treatment
-  with ProcessPoolExecutor() as executor:
 
-    list_of_futures = {executor.submit(solve_one_matrix, matrix_with_hypothesis): matrix_with_hypothesis for matrix_with_hypothesis in list_of_matrix}
+  solution = None
 
-    # Check if there is a solution from one of all the try
-    solution = None
-    for future in as_completed(list_of_futures):
-      result = future.result()
-      if result[1] == 0:
-        solution = result[0]
-        break
+  for matrix_with_hypothesis in list_of_matrix:
+    result = solve_one_matrix(matrix_with_hypothesis)
+
+    if result[1] == 0:
+      solution = result[0]
+      break
 
   return solution
 
